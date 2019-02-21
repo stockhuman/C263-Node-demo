@@ -1,0 +1,18 @@
+{
+  "name": "irc-demo",
+  "version": "1.0.0",
+  "author": "Michael Hemingway",
+  "description": "Base code derived from github.com/rohitpotato/node-socket-chatApp, presented to Pippin Barr's 2019 CART 263 Creative Computation II class at Concordia University",
+  "license": "ISC",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "express": "^4.16.4",
+    "moment": "^2.24.0",
+    "socket.io": "^2.2.0"
+  }
+}
