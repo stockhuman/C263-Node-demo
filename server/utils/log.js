@@ -14,6 +14,8 @@ const log = function (text, type) {
 				decoration = chalk.keyword('orange'); break
 			case 'user': // new user
 				decoration = chalk.green; break
+			case 'error': // new user
+				decoration = chalk.red.bold; break
 			default: // unrecognised but defined
 				// try to see if it corresponds to a chalk method, else gray
 				decoration = chalk[type] || chalk.gray; break

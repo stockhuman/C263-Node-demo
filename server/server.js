@@ -30,6 +30,7 @@ const users = new Users()
 // Boilerplate linking things up
 app.use(express.static(publicPath))
 
+
 // When we get a new connection...
 io.on('connection', function (socket) {
 	log('New user connected', 'user')
@@ -40,10 +41,10 @@ io.on('connection', function (socket) {
 		// have they given us a real (and valid) name and room?
 		if (
 			!isRealString(params.name)
-			&& params.name !== 'Server'
 			&& !isRealString(params.room)
 		) {
 			// if they have not, don't bother exceuting the rest of this fn.
+			log('Joining failed', 'error')
 			return callback('Name and Room name are required')
 		}
 
@@ -58,7 +59,7 @@ io.on('connection', function (socket) {
 			message('Server', 'Welcome to the chat App')
 		)
 
-		socket.broadcast.to(params.room).emit('newMessage',
+		socket.broadcast.to(params.room).emit('newNotice',
 			notice(`${params.name} has joined the chat`)
 		)
 
@@ -66,11 +67,11 @@ io.on('connection', function (socket) {
 	})
 
 	// When a user sends a new message
-	socket.on('createMessage', function (message, callback) {
+	socket.on('createMessage', function (msg, callback) {
 		let user = users.getUser(socket.id)
 
-		if (user && isRealString(message.text)) {
-			io.to(user.room).emit('newMessage', message(user.name, message.text))
+		if (user && isRealString(msg.text)) {
+			io.to(user.room).emit('newMessage', message(user.name, msg.text))
 		}
 
 		log(`${user.name} sent a message`, 'message')
