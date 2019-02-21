@@ -1,26 +1,24 @@
-var socket = io();
+const socket = io();
 
 function scrollToBottom() {
+	const messages = jQuery('#messages');
+	const newMessage = messages.children('li:last-child')
+	const clientHeight = messages.prop('clientHeight');
+	const scrollTop = messages.prop('scrollTop')
+	const scrollHeight = messages.prop('scrollHeight');
 
-	var messages = jQuery('#messages');
-	var newMessage = messages.children('li:last-child')
-	var clientHeight = messages.prop('clientHeight');
-	var scrollTop = messages.prop('scrollTop')
-	var scrollHeight = messages.prop('scrollHeight');
+	const newMessageHeight = newMessage.innerHeight();
+	const lastMessageHeight = newMessage.prev().innerHeight();
 
-	var newMessageHeight = newMessage.innerHeight();
-	var lastMessageHeight = newMessage.prev().innerHeight();
 	if (clientHeight + scrollTop + lastMessageHeight + newMessageHeight >= scrollHeight) {
 		messages.scrollTop(scrollHeight);
 	}
 }
 
-socket.on('connect', function ()  {
-
-	var params = jQuery.deparam(window.location.search);
+socket.on('connect', function () {
+	const params = jQuery.deparam(window.location.search);
 
 	socket.emit('join', params, function (err) {
-
 		if (err) {
 			alert(err);
 			window.location.href = '/';
@@ -32,9 +30,9 @@ socket.on('connect', function ()  {
 	console.log('Connected to Server');
 
 	socket.on('newMessage', function (message) {
-		var formattedTime = moment(message.createdAt).format('h:mm:a');
-		var template = jQuery('#message-template').html();
-		var html = Mustache.render(template, {
+		const formattedTime = moment(message.createdAt).format('h:mm:a');
+		const template = jQuery('#message-template').html();
+		const html = Mustache.render(template, {
 
 			text: message.text,
 			from: message.from,
@@ -45,24 +43,33 @@ socket.on('connect', function ()  {
 
 		scrollToBottom();
 	})
+
+	socket.on('newNotice', function (message) {
+		const formattedTime = moment(message.createdAt).format('h:mm:a');
+		const template = jQuery('#notice-template').html();
+		const html = Mustache.render(template, {
+			text: message.text,
+			createdAt: formattedTime
+		});
+
+		jQuery('#messages').append(html);
+	})
 });
 
 socket.on('updateUserList', function (users) {
-	var ol = jQuery('<ol></ol>');
+	const ol = jQuery('<ol></ol>');
 	users.forEach(function (user) {
-
 		ol.append(jQuery('<li></li>').text(user));
 	});
 
 	jQuery('#users').html(ol);
-});	
+});
 
 socket.on('newLocationMessage', function (message) {
 
-	var formattedTime = moment(message.createdAt).format('h:mm:a');
-	var template = jQuery('#location-message-template').html();
-	var html = Mustache.render(template, {
-
+	const formattedTime = moment(message.createdAt).format('h:mm:a');
+	const template = jQuery('#location-message-template').html();
+	const html = Mustache.render(template, {
 		text: message.url,
 		from: message.from,
 		createdAt: formattedTime
@@ -71,41 +78,30 @@ socket.on('newLocationMessage', function (message) {
 	jQuery('#messages').append(html);
 
 	scrollToBottom();
-
-	/*var li = jQuery('<li></li>');
-	var a = jQuery('<a target="_blank">My current Location</a>');
-
-	var formattedTime = moment(message.createdAt).format('h:mm:a');
-	li.text(`${message.from} ${formattedTime}:`);
-	a.attr('href', message.url);
-	li.append(a);
-	jQuery('#messages').append(li);*/
 });
 
 socket.on('disconnect', function () {
-
 	console.log('Disconnected from Server');
 });
 
 jQuery('#message-form').on('submit', function (e) {
 	e.preventDefault();
 
-	var messageTextbox = jQuery('[name=message]')
+	const messageTextbox = jQuery('[name=message]')
 
 	socket.emit('createMessage', {
 		text: jQuery('[name=message]').val()
 	}, function () {
-		jQuery('[name=message]').val('')
+		messageTextbox.val('')
 	});
 });
 
-var locationButton = jQuery('#send-location');
+const locationButton = jQuery('#send-location');
 locationButton.on('click', function () {
 
 	if (!navigator.geolocation) {
-
-		return alert('Geolocation not supported by your browser');
-	} 
+		return alert('Geolocation not supported or denied by your browser');
+	}
 
 	locationButton.attr('disabled', 'disabled').text('Sending location...');
 
@@ -122,4 +118,4 @@ locationButton.on('click', function () {
 		locationButton.attr('disabled', 'disabled').text('Second Location');
 		alert('Unable to fetch location');
 	});
-}); 
+});

@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const generateMessage = function (from, text) {
+const message = function (from, text) {
 	return {
 		from,
 		text,
@@ -8,7 +8,17 @@ const generateMessage = function (from, text) {
 	}
 }
 
-const generateLocationMessage = function (from, lat, long) {
+// serve up a notice (so and so joined/left server)
+const notice = function (text) {
+	return {
+		from: 'server',
+		text,
+		createdAt: moment.valueOf()
+	}
+}
+
+// broadcast one's location
+const location = function (from, lat, long) {
 	return {
 		from,
 		url: `https://google.com/maps?q=${lat},${long}`,
@@ -17,6 +27,7 @@ const generateLocationMessage = function (from, lat, long) {
 }
 
 module.exports = {
-	generateMessage,
-	generateLocationMessage
+	message,
+	notice,
+	location
 }

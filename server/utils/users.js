@@ -1,16 +1,16 @@
 class Users {
 
-	constructor () {
+	constructor() {
 		this.users = []
 	}
 
-	addUser (id, name, room) {
+	addUser(id, name, room) {
 		let user = { id, name, room }
 		this.users.push(user)
 		return user
 	}
 
-	removeUser (id) {
+	removeUser(id) {
 		let user = this.getUser(id)
 		if (user) {
 
@@ -20,11 +20,11 @@ class Users {
 		return user
 	}
 
-	getUser (id) {
+	getUser(id) {
 		return this.users.filter((user) => user.id === id)[0]
 	}
 
-	getUserList (room) {
+	getUserList(room) {
 		let users = this.users.filter((user) => {
 			return user.room === room
 		})

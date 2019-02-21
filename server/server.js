@@ -16,8 +16,9 @@ const io = socketIO(server)
 
 // load utility functions from our /utils folder
 const {
-	generateMessage,
-	generateLocationMessage
+	message,
+	notice,
+	location
 } = require('./utils/message.js')
 const { isRealString } = require('./utils/validation.js')
 const { Users } = require('./utils/users.js')
@@ -33,56 +34,66 @@ app.use(express.static(publicPath))
 io.on('connection', function (socket) {
 	log('New user connected', 'user')
 
+	// when a user joins...
 	socket.on('join', function (params, callback) {
 
-		if (!isRealString(params.name) && !isRealString(params.room)) {
+		// have they given us a real (and valid) name and room?
+		if (
+			!isRealString(params.name)
+			&& params.name !== 'Server'
+			&& !isRealString(params.room)
+		) {
+			// if they have not, don't bother exceuting the rest of this fn.
 			return callback('Name and Room name are required')
 		}
 
 		socket.join(params.room)
-		users.removeUser(socket.id)
-		users.addUser(socket.id, params.name, params.room)
+		users.removeUser(socket.id) // remove the temporary user created with just an ID
+		users.addUser(socket.id, params.name, params.room) // and replace them with a named one!
 
+		// Update list of active users on the side
 		io.to(params.room).emit('updateUserList', users.getUserList(params.room))
 
-		socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat App'))
+		socket.emit('newMessage',
+			message('Server', 'Welcome to the chat App')
+		)
 
-		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`))
+		socket.broadcast.to(params.room).emit('newMessage',
+			notice(`${params.name} has joined the chat`)
+		)
 
 		callback()
 	})
 
-	socket.on('createMessage', (message, callback) =>  {
-
-		var user = users.getUser(socket.id)
+	// When a user sends a new message
+	socket.on('createMessage', function (message, callback) {
+		let user = users.getUser(socket.id)
 
 		if (user && isRealString(message.text)) {
-
-			io.to(user.room).emit('newMessage', generateMessage(user.name, message.text))
+			io.to(user.room).emit('newMessage', message(user.name, message.text))
 		}
 
-		console.log('New Message', message)
+		log(`${user.name} sent a message`, 'message')
 		callback()
 	})
 
-	socket.on('createLocationMessage', (coords) => {
-		var user = users.getUser(socket.id)
-		console.log(user)
+	// When a user shares their location
+	socket.on('createLocationMessage', function (coords) {
+		let user = users.getUser(socket.id)
+		log(user)
 		if (user) {
-			io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude))
+			io.to(user.room).emit('newLocationMessage', location(user.name, coords.latitude, coords.longitude))
 		}
-
 	})
 
-	socket.on('disconnect', () => {
-
-		var user = users.removeUser(socket.id)
+	// When a user leaves
+	socket.on('disconnect', function () {
+		let user = users.removeUser(socket.id)
 		if (user) {
-
 			io.to(user.room).emit('updateUserList', users.getUserList(user.room))
-			io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the chat room.`))
+			io.to(user.room).emit('newMessage', notice(`${user.name} has left the chat.`))
+			log(`${user.name} Disconnected`, 'orange')
 		}
-		console.log('User Disconnected')
 	})
 })
 
