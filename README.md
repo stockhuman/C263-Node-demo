@@ -1,8 +1,7 @@
 # CART 263 Node.js chat demo
-Hello CART 263! Follow the instructions below to get started.
 ![screenshot](node-demo-screen.jpg)
-
-In your console application of choice (in MacOS - terminal.app), use git to copy this project to your current directory
+Hello CART 263! Follow the instructions below to get started.
+In your console application of choice (in MacOS - terminal.app), use git to copy this project to your current directory. You must have the git command line tools installed fo that first line to work. Else, you can download this repo as an archive and unzip it, ensuring that you are in the right directory within the command line. You can't find out how ona a mac with the `ls` command, and on Windows with `DIR`. It's highly reccomended that you switch away from PowerShell or cmd if you plan on developing on Windows.
 ```bash
 $ git clone https://github.com/stockHuman/C263-Node-demo.git
 $ cd C263-Node-demo
