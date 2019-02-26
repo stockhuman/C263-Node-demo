@@ -13,4 +13,4 @@ $ cd C263-Node-demo
 $ npm install
 $ npm start
 ```
-Have fun! Note that chats are volatile - they don't persist after a frefresh of the client or server.
+Have fun! Note that chats are volatile - they don't persist after a refresh of the client or server.
